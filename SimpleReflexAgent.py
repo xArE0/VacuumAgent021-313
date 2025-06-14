@@ -1,7 +1,7 @@
 # Avishek Shrestha 
 # CRN: 021-313
 # Date: 2025-06-14
-# Q. Implementation of vacuum cleaning agent as a goal based agent with memory
+# Q. Implementation of vacuum cleaning agent as a simple reflex agent
 
 import random
 import os
@@ -11,7 +11,7 @@ import time
 WIDTH = 6
 HEIGHT = 6
 DIRT_PROBABILITY = 0.3
-DELAY = 0.5
+DELAY = 0.3
 
 # Initialize room with random dirt
 room = []
@@ -25,15 +25,14 @@ for i in range(WIDTH):
 agent_x = random.randint(0, WIDTH - 1)
 agent_y = random.randint(0, HEIGHT - 1)
 
-# Memory
-visited = set()
-path = [(agent_x, agent_y)]
-step_count = 0
-
-# Directions (like king in chess)
+# Directions for movement (king-like)
 directions = [(-1, -1), (-1, 0), (-1, 1),
               (0, -1),          (0, 1),
               (1, -1),  (1, 0),  (1, 1)]
+
+# Tracking path and steps
+path = [(agent_x, agent_y)]
+step_count = 0
 
 # Display function
 def print_room():
@@ -50,49 +49,18 @@ def print_room():
         print(row_str)
     print()
 
-# Goal test
+# Check if all clean
 def goal_reached():
     return all(1 not in row for row in room)
 
 # Main loop
 while not goal_reached():
     prev_x, prev_y = agent_x, agent_y
-    visited.add((agent_x, agent_y))
 
-    # Clean if dirty
+    # Reflex logic
     if room[agent_x][agent_y] == 1:
-        room[agent_x][agent_y] = 0
-
-    print_room()
-    print(f"Moved: ({prev_x}, {prev_y}) -> ({agent_x}, {agent_y})")
-    time.sleep(DELAY)
-
-    # Priority 1: move to adjacent dirty tile
-    moved = False
-    for dx, dy in directions:
-        nx = agent_x + dx
-        ny = agent_y + dy
-        if 0 <= nx < WIDTH and 0 <= ny < HEIGHT:
-            if room[nx][ny] == 1:
-                agent_x, agent_y = nx, ny
-                moved = True
-                break
-
-    # Priority 2: move to unvisited tile
-    if not moved:
-        unvisited_moves = []
-        for dx, dy in directions:
-            nx = agent_x + dx
-            ny = agent_y + dy
-            if 0 <= nx < WIDTH and 0 <= ny < HEIGHT:
-                if (nx, ny) not in visited:
-                    unvisited_moves.append((nx, ny))
-        if unvisited_moves:
-            agent_x, agent_y = random.choice(unvisited_moves)
-            moved = True
-
-    # Priority 3: fallback to random adjacent move
-    if not moved:
+        room[agent_x][agent_y] = 0  # Clean it
+    else:
         random.shuffle(directions)
         for dx, dy in directions:
             nx = agent_x + dx
@@ -101,10 +69,14 @@ while not goal_reached():
                 agent_x, agent_y = nx, ny
                 break
 
+    print_room()
+    print(f"Moved: ({prev_x}, {prev_y}) -> ({agent_x}, {agent_y})")
+    time.sleep(DELAY)
+
     path.append((agent_x, agent_y))
     step_count += 1
 
-# Final state and summary
+# Final output
 print_room()
 print("Cleaning complete.")
 print(f"\nTotal steps taken: {step_count}")
