@@ -13,7 +13,7 @@ HEIGHT = 6
 DIRT_PROBABILITY = 0.3
 DELAY = 0.3
 
-# Initializing room with random dirt
+# Initialize room with random dirt
 room = []
 for i in range(WIDTH):
     row = []
@@ -28,15 +28,17 @@ for i in range(WIDTH):
 agent_x = random.randint(0, WIDTH - 1)
 agent_y = random.randint(0, HEIGHT - 1)
 
-# Memory of visited cells
+# Memory of visited cells and path
 visited = set()
+path = [(agent_x, agent_y)]
+step_count = 0
 
-# Directions (8 directions around the agent)
+# Directions (king-like movement)
 directions = [(-1, -1), (-1, 0), (-1, 1),
               (0, -1),          (0, 1),
               (1, -1),  (1, 0),  (1, 1)]
 
-# Display each state
+# Function to display the room
 def print_room():
     os.system('cls' if os.name == 'nt' else 'clear')
     for i in range(WIDTH):
@@ -51,7 +53,7 @@ def print_room():
         print(row_str)
     print()
 
-# Goal test 
+# Check if all tiles are clean
 def goal_reached():
     for row in room:
         if 1 in row:
@@ -63,7 +65,7 @@ while not goal_reached():
     prev_x, prev_y = agent_x, agent_y
     visited.add((agent_x, agent_y))
 
-    # Clean if dirty
+    # Clean current tile if dirty
     if room[agent_x][agent_y] == 1:
         room[agent_x][agent_y] = 0
 
@@ -80,11 +82,10 @@ while not goal_reached():
             if room[nx][ny] == 1 or (nx, ny) not in visited:
                 possible_moves.append((nx, ny))
 
-    # Move to next best position
+    # Choose next move
     if possible_moves:
         agent_x, agent_y = random.choice(possible_moves)
     else:
-        # If stuck, just move randomly
         random.shuffle(directions)
         for dx, dy in directions:
             nx = agent_x + dx
@@ -93,6 +94,13 @@ while not goal_reached():
                 agent_x, agent_y = nx, ny
                 break
 
-# Final room state
+    # Record path and step
+    path.append((agent_x, agent_y))
+    step_count += 1
+
+# Final display
 print_room()
 print("Cleaning complete.")
+print(f"\nTotal steps taken: {step_count}")
+print("Agent path:")
+print(' -> '.join([f"({x},{y})" for x, y in path]))
