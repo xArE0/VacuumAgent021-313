@@ -60,6 +60,7 @@ def goal_reached():
 
 # Main loop
 while not goal_reached():
+    prev_x, prev_y = agent_x, agent_y
     visited.add((agent_x, agent_y))
 
     # Clean if dirty
@@ -67,6 +68,7 @@ while not goal_reached():
         room[agent_x][agent_y] = 0
 
     print_room()
+    print(f"Moved: ({prev_x}, {prev_y}) -> ({agent_x}, {agent_y})")
     time.sleep(DELAY)
 
     # Find next move
